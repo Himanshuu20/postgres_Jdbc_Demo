@@ -5,6 +5,9 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 // class to implement to data access logic with PostGres 
 public class EmployeeDaoImpl implements EmployeeDao {
@@ -70,18 +73,81 @@ public class EmployeeDaoImpl implements EmployeeDao {
 
 	@Override
 	public Boolean updateEmployee(Employee updateEmployee) {
+
+		Boolean isRecodUpdated = false;
+		String sql = "UPDATE employee SET name = ? , salary = ? WHERE id = ?";
+
+		try {
+			PreparedStatement preparedStatement = this.connection.prepareStatement(sql);
+			preparedStatement.setString(1, updateEmployee.getName());
+			preparedStatement.setDouble(2, updateEmployee.getSalary());
+			preparedStatement.setInt(3, updateEmployee.getId());
+			int count = preparedStatement.executeUpdate();
+			if (count == 1)
+				isRecodUpdated = true;
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return isRecodUpdated;
+	}
+
+
+	@Override
+	public Boolean deleteEmployee(Integer employeeId) {
+		Boolean isRecodDeleted = false;
+		String sql = "DELETE FROM employee WHERE id = ?";
+
+		try {
+			PreparedStatement preparedStatement = this.connection.prepareStatement(sql);
+
+			preparedStatement.setInt(1, employeeId);
+
+			int count = preparedStatement.executeUpdate();
+			if (count == 1)
+				isRecodDeleted = true;
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return isRecodDeleted;
+	}
+
+	@Override
+	public List<Employee> getAllEmployees() {
+
+		List<Employee> employees = new ArrayList<>();
+		String sql = "SELECT id,name,salary FROM employee";
+		try {
+			Statement statement = this.connection.createStatement();
+			ResultSet result = statement.executeQuery(sql);
+
+			while (result.next()) {
+				Employee newEmployee = new Employee(result.getInt("id"), result.getString("name"),
+						result.getDouble("salary"));
+				employees.add(newEmployee);
+			}
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return employees;
+	}
+
+	@Override
+	public Boolean updateEmployeeSalary(Integer employeeId, String name) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Boolean updateEmployeeName(Integer employeeId, String name) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Boolean deleteEmployee(Integer employeeId) {
 		// TODO Auto-generated method stub
 		return null;
 	}
